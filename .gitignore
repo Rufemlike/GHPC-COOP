@@ -1,0 +1,13 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+*.dll.bak
+*.bak
+
+# IDE and OS
+.vs/
+.idea/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
