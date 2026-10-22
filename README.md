@@ -49,7 +49,7 @@
 
 ### Steam P2P
 1. Both players launch Steam and start GHPC.
-2. In the top-left corner, click `► СЕТЬ (CO-OP) [F9]` to open the dropdown menu.
+2. In the top-right corner, click `► СЕТЬ (CO-OP) [F9]` to open the dropdown menu.
 3. **Host:** On the **Steam** tab, click **`Создать лобби` (Create Lobby)**.
 4. Click **`Копировать`** to copy the lobby code or invite friends via `Shift+Tab`.
 5. **Client:** Paste the lobby ID into the text box and click **`Войти по ID` (Join by ID)**.
