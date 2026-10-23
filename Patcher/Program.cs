@@ -12,6 +12,13 @@ namespace Patcher
         {
             try
             {
+                Console.OutputEncoding = System.Text.Encoding.UTF8;
+                Console.InputEncoding = System.Text.Encoding.UTF8;
+            }
+            catch { }
+
+            try
+            {
                 Run(args);
             }
             catch (Exception ex)
@@ -266,20 +273,50 @@ namespace Patcher
 
         static string FindManagedDir()
         {
-            string[] candidates = new string[]
+            var candidates = new System.Collections.Generic.List<string>
             {
+                // 1. Same folder as Patcher.exe (Standard drag-and-drop into GHPC folder)
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GHPC_Data", "Managed"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "GHPC_Data", "Managed"),
+                // 2. Current working directory
                 Path.Combine(Directory.GetCurrentDirectory(), "GHPC_Data", "Managed"),
-                @"D:\Games\Gunner.HEAT.PC.20261014\game\GHPC_Data\Managed"
+                // 3. Parent directory (e.g. if run from a subfolder like /Mods)
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "GHPC_Data", "Managed")
             };
+
+            // 4. Steam installation detection via Registry (if on Windows)
+            try
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    string steamPath = Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string;
+                    if (!string.IsNullOrEmpty(steamPath))
+                    {
+                        candidates.Add(Path.Combine(steamPath, "steamapps", "common", "Gunner HEAT PC", "GHPC_Data", "Managed"));
+                    }
+                }
+            }
+            catch { }
+
+            // 5. Common Steam library drives
+            string[] driveLetters = new[] { "C", "D", "E", "F", "G" };
+            foreach (var d in driveLetters)
+            {
+                candidates.Add($@"{d}:\Program Files (x86)\Steam\steamapps\common\Gunner HEAT PC\GHPC_Data\Managed");
+                candidates.Add($@"{d}:\SteamLibrary\steamapps\common\Gunner HEAT PC\GHPC_Data\Managed");
+                candidates.Add($@"{d}:\Steam\steamapps\common\Gunner HEAT PC\GHPC_Data\Managed");
+                candidates.Add($@"{d}:\Games\SteamLibrary\steamapps\common\Gunner HEAT PC\GHPC_Data\Managed");
+            }
 
             foreach (var c in candidates)
             {
-                if (Directory.Exists(c) && File.Exists(Path.Combine(c, "Assembly-CSharp.dll")))
+                try
                 {
-                    return Path.GetFullPath(c);
+                    if (Directory.Exists(c) && File.Exists(Path.Combine(c, "Assembly-CSharp.dll")))
+                    {
+                        return Path.GetFullPath(c);
+                    }
                 }
+                catch { }
             }
 
             // Interactive fallback prompt if run outside game folder
