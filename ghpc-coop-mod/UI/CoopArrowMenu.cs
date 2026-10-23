@@ -29,8 +29,8 @@ namespace GHPC.Coop.UI
 
         private float GetPosX(float elementWidth) => Mathf.Max(10f, Screen.width - elementWidth - 15f);
 
-        private int _currentTab = 0; // 0: Steam, 1: LAN/IP, 2: Взвод, 3: Инфо
-        private readonly string[] _tabNames = new string[] { "Steam", "LAN/IP", "Взвод", "Инфо" };
+        private int _currentTab = 0; // 0: Steam, 1: LAN/IP, 2: Взвод, 3: Настройки
+        private readonly string[] _tabNames = new string[] { "Steam", "LAN/IP", "Взвод", "Настройки" };
 
         private string _ipInput = "127.0.0.1";
         private string _portInput = "7777";
@@ -180,17 +180,8 @@ namespace GHPC.Coop.UI
             float y = bodyRect.y + 8f;
             float w = bodyRect.width - 20f;
 
-            // Title + Nameplates Toggle Button
-            DrawBoldLabel(new Rect(startX, y, w - 120f, 20f), "GHPC Co-op Mod v0.2.6", 13);
-            bool npEnabled = TacticalNameplates.Instance != null && TacticalNameplates.Instance.Enabled;
-            string npText = npEnabled ? "Ники: [ВКЛ]" : "Ники: [ВЫКЛ]";
-            if (GuiButton(new Rect(startX + w - 110f, y - 2f, 110f, 22f), npText))
-            {
-                if (TacticalNameplates.Instance != null)
-                {
-                    TacticalNameplates.Instance.Enabled = !npEnabled;
-                }
-            }
+            // Title
+            DrawBoldLabel(new Rect(startX, y, w, 20f), "GHPC Co-op Mod v0.2.6", 13);
             y += 24f;
 
             // Tabs Bar
@@ -221,7 +212,7 @@ namespace GHPC.Coop.UI
                     DrawPlatoonTab(startX, ref y, w);
                     break;
                 case 3:
-                    DrawInfoTab(startX, ref y, w);
+                    DrawSettingsTab(startX, ref y, w);
                     break;
             }
         }
@@ -428,18 +419,47 @@ namespace GHPC.Coop.UI
             }
         }
 
-        private void DrawInfoTab(float x, ref float y, float w)
+        private void DrawSettingsTab(float x, ref float y, float w)
         {
-            GUI.Label(new Rect(x, y, w, 160f),
-                "Управление окном:\n" +
-                "• Привязано к правому верхнему углу экрана\n" +
-                "• [— Свернуть] — свернуть в аккуратную плашку\n" +
-                "• [→] (стрелка вправо) — развернуть выпадающее меню\n" +
-                "• [←] (стрелка влево) / [Esc] — свернуть\n" +
-                "• [F9] — переключить скрыть / показать\n\n" +
-                "Курсор мыши автоматически доступен при открытом меню.\n" +
-                "Синхронизируются: позиция танка, башня, орудие и стрельба.");
-            y += 165f;
+            DrawBoldLabel(new Rect(x, y, w, 20f), "Отображение в бою:", 12);
+            y += 24f;
+
+            // 1. Tactical Nameplates Toggle
+            bool npEnabled = TacticalNameplates.Instance != null && TacticalNameplates.Instance.Enabled;
+            string npButtonText = npEnabled ? "Ники игроков в 3D: [ВКЛЮЧЕНЫ]" : "Ники игроков в 3D: [ВЫКЛЮЧЕНЫ]";
+            if (GuiButton(new Rect(x, y, w, 28f), npButtonText))
+            {
+                if (TacticalNameplates.Instance != null)
+                {
+                    TacticalNameplates.Instance.Enabled = !npEnabled;
+                }
+            }
+            y += 32f;
+
+            GUI.Label(new Rect(x, y, w, 36f), "Отображает имя игрока, модель танка и дистанцию над союзниками (только реальные игроки).");
+            y += 42f;
+
+            // 2. Show self toggle
+            bool showSelf = TacticalNameplates.Instance != null && TacticalNameplates.Instance.ShowSelf;
+            string selfText = showSelf ? "Метка над своим танком: [ВКЛ]" : "Метка над своим танком: [ВЫКЛ]";
+            if (GuiButton(new Rect(x, y, w, 26f), selfText))
+            {
+                if (TacticalNameplates.Instance != null)
+                {
+                    TacticalNameplates.Instance.ShowSelf = !showSelf;
+                }
+            }
+            y += 34f;
+
+            // Quick Hotkeys Reference
+            DrawBoldLabel(new Rect(x, y, w, 20f), "Горячие клавиши:", 12);
+            y += 22f;
+            GUI.Label(new Rect(x, y, w, 70f),
+                "• [F9] — скрыть / показать это меню\n" +
+                "• [TAB] — переключить танк во взводе\n" +
+                "• [→] / [←] — развернуть / свернуть меню\n" +
+                "• Курсор мыши свободен при открытом меню");
+            y += 75f;
         }
 
         private void CycleNextVehicle()
