@@ -6,7 +6,7 @@
 
 ## 🌟 Key Features (v0.2.4)
 
-- **Clean Top-Right Dropdown UI (Iron Nest Style):**
+- **Clean Top-Right Dropdown UI:**
   - Anchored firmly to the top-right corner of the screen — completely clears in-game compass, radio messages, vehicle status, and native menu text.
   - Collapsed state: Compact button `► СЕТЬ (CO-OP) [F9]`.
   - Expanded state: Drops down right below the header `▼ СЕТЬ (CO-OP) [F9] — СВЕРНУТЬ`.
