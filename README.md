@@ -4,50 +4,42 @@
 
 ---
 
-## 🌟 Key Features (v0.2.4)
+## 🌟 What's New in v0.2.5
 
-- **Clean Top-Right Dropdown UI:**
-  - Anchored firmly to the top-right corner of the screen — completely clears in-game compass, radio messages, vehicle status, and native menu text.
-  - Collapsed state: Compact button `► СЕТЬ (CO-OP) [F9]`.
-  - Expanded state: Drops down right below the header `▼ СЕТЬ (CO-OP) [F9] — СВЕРНУТЬ`.
-  - The native game main menu is left 100% clean and vanilla (no broken cloned buttons or stretched animation glitches).
-  - Automatic mouse cursor release (`Cursor.lockState = None`) while the menu is open, restored seamlessly during gameplay.
-  - Quick hotkeys: `[F9]` to toggle, `[→]` to expand dropdown, `[←]` or `[Esc]` to collapse.
-
-- **High Performance & 0 FPS Drop:**
-  - Single-pass native rendering: completely eliminated duplicate `OnGUI()` invocations.
-  - Removed per-frame scene hierarchy searches (`FindObjectsOfType`).
-  - Friendly unit platoon list is cached and refreshed on-demand.
-
-- **Dual Multiplayer Networking:**
-  - **Steam P2P (Lobbies & Invites):**
-    - Seamless lobby creation and lookup with active `SteamAPI` callback pumping.
-    - Copy lobby ID in one click or invite directly via Steam Overlay (`Shift+Tab`).
-  - **Direct UDP / LAN (Port 7777):**
-    - Play over Local Network, Radmin VPN, or ZeroTier without needing Steam.
-
-- **Platoon Control & Vehicle Synchronization (20 Hz):**
-  - Chassis world position, orientation quaternion, and linear velocity.
-  - Turret horizontal traverse azimuth and main gun vertical elevation.
-  - Weapon firing replication with ballistics.
-  - Hotkey switching between platoon vehicles (`TAB`) or via the platoon tab.
+- **Tactical 3D Nameplates (`TacticalNameplates.cs`):**
+  - Crisp in-world markers drawn directly above teammates' tanks: `PlayerName [VehicleModel] (Distance)`.
+  - **Smart Occlusion (LoS Raycasting):** Markers automatically hide behind ridges, terrain, buildings, and tree cover.
+  - **Dynamic Scale & Alpha Falloff:** Clean readability from 1m up to 2500m without cluttering your gunner optics.
+- **Autoloader Stabilizer (`AutoloaderStabilizer.cs`):**
+  - Resolves Soviet carousel autoloader lockups on T-72M1, T-80B, and BMP-1 during multiplayer.
+  - Ensures continuous cycling and loading without desynchronizing the gun breech state.
+- **Interactive 1-Click Patcher & Uninstaller (`Patcher.exe`):**
+  - Run `Patcher.exe` directly from the game root:
+    - **`[1]`** Install / update the mod into the game.
+    - **`[2]`** Completely uninstall the mod and restore 100% vanilla game files from backup.
+- **Top-Right Dropdown Menu:**
+  - Anchored firmly to the top-right corner of the screen (`Screen.width - 335px`), completely clearing compass, radio chat, and vehicle status.
+  - Dual networking: Steam P2P (invites & lobby codes) + Direct UDP / LAN (port `7777`).
 
 ---
 
 ## 📦 Installation
 
-### Quick Install (Pre-patched)
-1. Download [`GHPC-Coop-Mod-v0.2.4.zip`](releases/GHPC-Coop-Mod-v0.2.4.zip).
+### Quick Install (Automated Installer)
+1. Download [`GHPC-Coop-Mod-v0.2.5.zip`](releases/GHPC-Coop-Mod-v0.2.5.zip).
 2. Ensure GHPC is closed.
-3. Extract the archive into your GHPC root directory (where `GHPC.exe` is located).
-4. Allow replacing `GHPC_Data/Managed/Assembly-CSharp.dll` when prompted (a backup is recommended).
-5. Launch `GHPC.exe`. The `► СЕТЬ (CO-OP) [F9]` button will appear in the top-left corner!
+3. Extract the contents directly into your GHPC game directory (where `GHPC.exe` is located).
+4. Run **`Patcher.exe`** and press **`1`** (or let it auto-install).
+5. Launch `GHPC.exe`. The `► СЕТЬ (CO-OP) [F9]` button will appear in the top-right corner!
+
+### How to Uninstall / Restore Vanilla
+* Run `Patcher.exe` and press **`2`**. Your game is immediately 100% vanilla.
 
 ---
 
 ## 🎮 How to Play
 
-### Steam P2P
+### Steam P2P (Recommended)
 1. Both players launch Steam and start GHPC.
 2. In the top-right corner, click `► СЕТЬ (CO-OP) [F9]` to open the dropdown menu.
 3. **Host:** On the **Steam** tab, click **`Создать лобби` (Create Lobby)**.
@@ -79,6 +71,6 @@ Requirements: .NET SDK 8.0/9.0/10.0
 # Build mod DLL
 dotnet build ghpc-coop-mod/GHPC.Coop.csproj -c Release
 
-# Apply IL patch to game Assembly-CSharp.dll
-dotnet run --project Patcher
+# Build standalone Patcher tool
+dotnet publish Patcher/Patcher.csproj -c Release -r win-x64 --self-contained false -o Patcher/publish
 ```
