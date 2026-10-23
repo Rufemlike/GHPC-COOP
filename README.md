@@ -4,33 +4,36 @@
 
 ---
 
-## 🌟 What's New in v0.2.6
+## 🌟 What's New in v0.2.7
 
+- **Player-Only Tactical 3D Nameplates (`TacticalNameplates.cs`):**
+  - AI bots, wingmen, and platoon commanders are now cleanly filtered out — **markers appear strictly above tanks controlled by real connected human players**.
+  - Crisp in-world markers drawn directly above teammates' tanks: `PlayerName [VehicleModel] (Distance)`.
+  - **Smart Occlusion (LoS Raycasting):** Markers automatically hide behind ridges, terrain, buildings, and tree cover.
+  - **Dynamic Scale & Alpha Falloff:** Clean readability from 1m up to 2500m without cluttering your gunner optics.
+- **Dedicated In-Game Settings Tab (`CoopArrowMenu.cs`):**
+  - Dropdown menu now features a dedicated **`[Настройки]` (Settings)** tab.
+  - Toggle 3D Player Nameplates on/off on the fly (`[Ники игроков в 3D: ВКЛ/ВЫКЛ]`).
+  - Toggle marker above your own vehicle (`[Метка над своим танком: ВКЛ/ВЫКЛ]`).
+  - Quick hotkey guide and control references.
 - **Dual-Stack IPv6 + IPv4 Networking (`CoopNetwork.cs`):**
   - Host runs a dual-stack socket (`IPAddress.IPv6Any`) accepting both **IPv6** and **IPv4** peers simultaneously on port `7777`.
   - Client supports direct connection to IPv6 addresses (e.g. `2a00:...`), IPv4, or hostnames/DDNS domains with automatic DNS resolution.
   - Allows direct peer connections across ISPs with native IPv6 without needing NAT traversal, Hamachi, or Radmin VPN.
-- **Tactical 3D Nameplates (`TacticalNameplates.cs`):**
-  - Crisp in-world markers drawn directly above teammates' tanks: `PlayerName [VehicleModel] (Distance)`.
-  - **Smart Occlusion (LoS Raycasting):** Markers automatically hide behind ridges, terrain, buildings, and tree cover.
-  - **Dynamic Scale & Alpha Falloff:** Clean readability from 1m up to 2500m without cluttering your gunner optics.
+- **Fully Portable 1-Click Patcher & Uninstaller (`Patcher.exe`):**
+  - Single-file self-contained executable (requires zero installed .NET SDKs or runtimes on target PCs).
+  - Steam registry auto-discovery, common library drive scanning, and interactive drag-and-drop path fallback.
+  - Full UTF-8 terminal output and guaranteed prompt pause before exit.
 - **Autoloader Stabilizer (`AutoloaderStabilizer.cs`):**
   - Resolves Soviet carousel autoloader lockups on T-72M1, T-80B, and BMP-1 during multiplayer.
   - Ensures continuous cycling and loading without desynchronizing the gun breech state.
-- **Interactive 1-Click Patcher & Uninstaller (`Patcher.exe`):**
-  - Run `Patcher.exe` directly from the game root:
-    - **`[1]`** Install / update the mod into the game.
-    - **`[2]`** Completely uninstall the mod and restore 100% vanilla game files from backup.
-- **Top-Right Dropdown Menu:**
-  - Anchored firmly to the top-right corner of the screen (`Screen.width - 335px`), completely clearing compass, radio chat, and vehicle status.
-  - Dual networking: Steam P2P (invites & lobby codes) + Direct UDP / LAN (IPv4 + IPv6).
 
 ---
 
 ## 📦 Installation
 
 ### Quick Install (Automated Installer)
-1. Download [`GHPC-Coop-Mod-v0.2.6.zip`](releases/GHPC-Coop-Mod-v0.2.6.zip).
+1. Download [`GHPC-Coop-Mod-v0.2.7.zip`](releases/GHPC-Coop-Mod-v0.2.7.zip).
 2. Ensure GHPC is closed.
 3. Extract the contents directly into your GHPC game directory (where `GHPC.exe` is located).
 4. Run **`Patcher.exe`** and press **`1`** (or let it auto-install).

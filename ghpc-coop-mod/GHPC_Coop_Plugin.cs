@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace GHPC.Coop
 {
-    [BepInPlugin("com.coopanything.ghpc", "GHPC Co-op Mod", "0.2.3")]
+    [BepInPlugin("com.coopanything.ghpc", "GHPC Co-op Mod", "0.2.7")]
     public class GHPC_Coop_Plugin : BaseUnityPlugin
     {
         private Harmony _harmony;
@@ -29,7 +29,7 @@ namespace GHPC.Coop
         private void Awake()
         {
             Logger.LogInfo("[GHPC.Coop] =========================================");
-            Logger.LogInfo("[GHPC.Coop] Initializing GHPC Co-op Mod v0.2.3...");
+            Logger.LogInfo("[GHPC.Coop] Initializing GHPC Co-op Mod v0.2.7 (Pure BepInEx Plugin)...");
 
             // 1. Harmony Patches
             try
@@ -66,10 +66,23 @@ namespace GHPC.Coop
                 Logger.LogWarning($"[GHPC.Coop] Steam Transport skipped: {ex.Message}");
             }
 
-            // 4. Vehicle Sync Manager
-            try
+            // 4. Create dedicated scene host with HideFlags.None for reliable OnGUI and Update
+            EnsureGUIObject();
+
+            Logger.LogInfo("[GHPC.Coop] Subsystems initialized successfully!");
+            Logger.LogInfo("[GHPC.Coop] =========================================");
+        }
+
+        private void EnsureGUIObject()
+        {
+            if (_guiGO == null)
             {
-                _syncManager = gameObject.AddComponent<VehicleSyncManager>();
+                _guiGO = new GameObject("GHPC_Coop_Host");
+                _guiGO.hideFlags = HideFlags.None;
+                DontDestroyOnLoad(_guiGO);
+
+                // Add VehicleSyncManager
+                _syncManager = _guiGO.AddComponent<VehicleSyncManager>();
                 _syncManager.Network = _network;
                 _syncManager.SteamTransport = _steamTransport;
 
@@ -85,40 +98,13 @@ namespace GHPC.Coop
                     _steamTransport.OnFireWeaponReceived += _syncManager.HandleRemoteFire;
                 }
 
-                Logger.LogInfo("[GHPC.Coop] VehicleSyncManager registered.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"[GHPC.Coop] VehicleSyncManager error: {ex.Message}");
-            }
-
-            // 5. Connect to existing native UI or create fallback GUI
-            EnsureGUIObject();
-
-            Logger.LogInfo("[GHPC.Coop] Subsystems initialized!");
-            Logger.LogInfo("[GHPC.Coop] =========================================");
-        }
-
-        private void EnsureGUIObject()
-        {
-            if (CoopArrowMenu.Instance != null)
-            {
-                _arrowMenu = CoopArrowMenu.Instance;
-                return;
-            }
-
-            if (_guiGO == null)
-            {
-                _guiGO = new GameObject("GHPC_Coop_GUI");
-                _guiGO.hideFlags = HideFlags.None;
-                DontDestroyOnLoad(_guiGO);
-
+                // Add CoopArrowMenu
                 _arrowMenu = _guiGO.AddComponent<CoopArrowMenu>();
                 _arrowMenu.Network = _network;
                 _arrowMenu.SteamTransport = _steamTransport;
                 _arrowMenu.IsOpen = true;
 
-                Logger.LogInfo("[GHPC.Coop] >>> Dedicated GHPC_Coop_GUI created with HideFlags.None (IsOpen=TRUE)! <<<");
+                Logger.LogInfo("[GHPC.Coop] Dedicated GHPC_Coop_Host created with HideFlags.None (IsOpen=TRUE).");
             }
         }
 
