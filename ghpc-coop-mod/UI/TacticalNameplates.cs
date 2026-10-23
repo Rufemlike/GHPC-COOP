@@ -126,16 +126,27 @@ namespace GHPC.Coop.UI
                 bool isSelf = (unit == localUnit);
                 if (isSelf && !ShowSelf) continue;
 
+                // Check if this vehicle is operated by a human player (local or remote)
                 string unitId = sync.GetUnitIdentifier(unit);
+                if (!isSelf && !sync.IsUnitPlayerControlled(unit) && !_remotePlayerNames.ContainsKey(unitId))
+                {
+                    // Pure AI bot (e.g. AI commander, AI platoon wingman) -> SKIP!
+                    continue;
+                }
+
                 string playerName;
                 if (isSelf)
                 {
                     playerName = "ВЫ";
                 }
-                else if (!_remotePlayerNames.TryGetValue(unitId, out playerName) || string.IsNullOrEmpty(playerName))
+                else if (_remotePlayerNames.TryGetValue(unitId, out playerName) && !string.IsNullOrEmpty(playerName))
                 {
-                    // Fallback to vehicle friendly name or callsign
-                    playerName = !string.IsNullOrEmpty(unit.FriendlyName) ? unit.FriendlyName : unit.name;
+                    // Registered remote player name
+                }
+                else
+                {
+                    // Connected remote player
+                    playerName = "Игрок";
                 }
 
                 // 3D anchor position directly above the turret / vehicle roof

@@ -80,6 +80,19 @@ namespace GHPC.Coop.Core
             return list;
         }
 
+        public bool IsUnitPlayerControlled(GHPC.Unit unit)
+        {
+            if (unit == null) return false;
+            if (unit == LocalPlayerUnit) return true;
+
+            string id = GetUnitIdentifier(unit);
+            if (!string.IsNullOrEmpty(id) && _remoteStates.TryGetValue(id, out var state))
+            {
+                return (UnityEngine.Time.time - state.LastUpdateTime) < 10f;
+            }
+            return false;
+        }
+
         public void SendPacket(byte[] data)
         {
             if (UseSteam)

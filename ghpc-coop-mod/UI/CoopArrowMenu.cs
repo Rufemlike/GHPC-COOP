@@ -180,8 +180,17 @@ namespace GHPC.Coop.UI
             float y = bodyRect.y + 8f;
             float w = bodyRect.width - 20f;
 
-            // Title
-            DrawBoldLabel(new Rect(startX, y, w, 20f), "GHPC Co-op Mod v0.2.4", 13);
+            // Title + Nameplates Toggle Button
+            DrawBoldLabel(new Rect(startX, y, w - 120f, 20f), "GHPC Co-op Mod v0.2.6", 13);
+            bool npEnabled = TacticalNameplates.Instance != null && TacticalNameplates.Instance.Enabled;
+            string npText = npEnabled ? "Ники: [ВКЛ]" : "Ники: [ВЫКЛ]";
+            if (GuiButton(new Rect(startX + w - 110f, y - 2f, 110f, 22f), npText))
+            {
+                if (TacticalNameplates.Instance != null)
+                {
+                    TacticalNameplates.Instance.Enabled = !npEnabled;
+                }
+            }
             y += 24f;
 
             // Tabs Bar
@@ -341,8 +350,8 @@ namespace GHPC.Coop.UI
 
             y += 34f;
 
-            GUI.Label(new Rect(x, y, w, 40f), "Для игры через интернет без белого IP\nиспользуйте Radmin VPN или ZeroTier.");
-            y += 44f;
+            GUI.Label(new Rect(x, y, w, 44f), "Поддерживаются IPv4, IPv6 и домены (DDNS).\nДля прямого подключения без белого IPv4\nможно использовать прямой IPv6 или Radmin.");
+            y += 48f;
         }
 
         private void RefreshFriendlyUnits()
