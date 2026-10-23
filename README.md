@@ -4,8 +4,12 @@
 
 ---
 
-## 🌟 What's New in v0.2.5
+## 🌟 What's New in v0.2.6
 
+- **Dual-Stack IPv6 + IPv4 Networking (`CoopNetwork.cs`):**
+  - Host runs a dual-stack socket (`IPAddress.IPv6Any`) accepting both **IPv6** and **IPv4** peers simultaneously on port `7777`.
+  - Client supports direct connection to IPv6 addresses (e.g. `2a00:...`), IPv4, or hostnames/DDNS domains with automatic DNS resolution.
+  - Allows direct peer connections across ISPs with native IPv6 without needing NAT traversal, Hamachi, or Radmin VPN.
 - **Tactical 3D Nameplates (`TacticalNameplates.cs`):**
   - Crisp in-world markers drawn directly above teammates' tanks: `PlayerName [VehicleModel] (Distance)`.
   - **Smart Occlusion (LoS Raycasting):** Markers automatically hide behind ridges, terrain, buildings, and tree cover.
@@ -19,14 +23,14 @@
     - **`[2]`** Completely uninstall the mod and restore 100% vanilla game files from backup.
 - **Top-Right Dropdown Menu:**
   - Anchored firmly to the top-right corner of the screen (`Screen.width - 335px`), completely clearing compass, radio chat, and vehicle status.
-  - Dual networking: Steam P2P (invites & lobby codes) + Direct UDP / LAN (port `7777`).
+  - Dual networking: Steam P2P (invites & lobby codes) + Direct UDP / LAN (IPv4 + IPv6).
 
 ---
 
 ## 📦 Installation
 
 ### Quick Install (Automated Installer)
-1. Download [`GHPC-Coop-Mod-v0.2.5.zip`](releases/GHPC-Coop-Mod-v0.2.5.zip).
+1. Download [`GHPC-Coop-Mod-v0.2.6.zip`](releases/GHPC-Coop-Mod-v0.2.6.zip).
 2. Ensure GHPC is closed.
 3. Extract the contents directly into your GHPC game directory (where `GHPC.exe` is located).
 4. Run **`Patcher.exe`** and press **`1`** (or let it auto-install).
