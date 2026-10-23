@@ -10,6 +10,25 @@ namespace Patcher
     {
         static void Main(string[] args)
         {
+            try
+            {
+                Run(args);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n[CRITICAL ERROR]: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.ResetColor();
+            }
+            finally
+            {
+                PauseIfInteractive();
+            }
+        }
+
+        static void Run(string[] args)
+        {
             Console.WriteLine("==================================================");
             Console.WriteLine("GHPC Co-op Mod Installer / Uninstaller");
             Console.WriteLine("==================================================");
@@ -22,7 +41,6 @@ namespace Patcher
                 Console.WriteLine("ERROR: Could not find GHPC_Data\\Managed directory!");
                 Console.WriteLine("Please place this installer in your GHPC game folder or run it from the mod directory.");
                 Console.ResetColor();
-                PauseIfInteractive();
                 return;
             }
 
@@ -67,8 +85,6 @@ namespace Patcher
             {
                 Install(managedDir, backupPath, targetPath, coopSourcePath, coopDestPath);
             }
-
-            PauseIfInteractive();
         }
 
         static void Uninstall(string backupPath, string targetPath, string coopDestPath)
@@ -252,10 +268,10 @@ namespace Patcher
         {
             string[] candidates = new string[]
             {
-                @"D:\Games\Gunner.HEAT.PC.20261014\game\GHPC_Data\Managed",
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GHPC_Data", "Managed"),
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "GHPC_Data", "Managed"),
-                Path.Combine(Directory.GetCurrentDirectory(), "GHPC_Data", "Managed")
+                Path.Combine(Directory.GetCurrentDirectory(), "GHPC_Data", "Managed"),
+                @"D:\Games\Gunner.HEAT.PC.20261014\game\GHPC_Data\Managed"
             };
 
             foreach (var c in candidates)
@@ -265,6 +281,32 @@ namespace Patcher
                     return Path.GetFullPath(c);
                 }
             }
+
+            // Interactive fallback prompt if run outside game folder
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Автопоиск папки игры не дал результата.");
+            Console.WriteLine("Перетащите сюда папку с игрой GHPC (или файл GHPC.exe) и нажмите Enter:");
+            Console.Write("Путь к игре (Game Path): ");
+            Console.ResetColor();
+
+            string input = Console.ReadLine()?.Trim('"', ' ', '\'');
+            if (!string.IsNullOrWhiteSpace(input))
+            {
+                if (File.Exists(input) && Path.GetFileName(input).Equals("Assembly-CSharp.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Path.GetDirectoryName(Path.GetFullPath(input));
+                }
+
+                string candidateManaged = Directory.Exists(Path.Combine(input, "GHPC_Data", "Managed"))
+                    ? Path.Combine(input, "GHPC_Data", "Managed")
+                    : (Directory.Exists(Path.Combine(input, "Managed")) ? Path.Combine(input, "Managed") : input);
+
+                if (Directory.Exists(candidateManaged) && File.Exists(Path.Combine(candidateManaged, "Assembly-CSharp.dll")))
+                {
+                    return Path.GetFullPath(candidateManaged);
+                }
+            }
+
             return null;
         }
 
@@ -272,11 +314,8 @@ namespace Patcher
         {
             try
             {
-                if (Environment.UserInteractive)
-                {
-                    Console.WriteLine("\nPress any key to exit...");
-                    Console.ReadKey();
-                }
+                Console.WriteLine("\nНажмите Enter для выхода / Press Enter to exit...");
+                Console.ReadLine();
             }
             catch { }
         }
