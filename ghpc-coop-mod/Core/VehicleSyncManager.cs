@@ -99,6 +99,7 @@ namespace GHPC.Coop.Core
             {
                 Network?.Update();
                 SteamTransport?.Update();
+                AutoloaderStabilizer.Update();
             }
             catch { }
 

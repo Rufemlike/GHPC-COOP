@@ -129,6 +129,13 @@ namespace GHPC.Coop.UI
 
             GUI.depth = -99999;
 
+            // 0. Render Tactical 3D Nameplates over friendly tanks in world space
+            try
+            {
+                TacticalNameplates.Instance?.RenderNameplates();
+            }
+            catch { }
+
             // 1. Collapsed: A neat button pinned to the top-right corner
             if (!IsOpen)
             {

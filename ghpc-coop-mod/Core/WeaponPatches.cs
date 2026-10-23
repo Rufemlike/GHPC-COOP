@@ -18,7 +18,7 @@ namespace GHPC.Coop.Core
             if (!__result || IsRemoteFire) return;
 
             var sync = VehicleSyncManager.Instance;
-            if (sync == null || sync.Network == null || !sync.Network.IsConnected) return;
+            if (sync == null || !sync.IsConnected) return;
 
             var unit = Traverse.Create(__instance).Field("_unit").GetValue<GHPC.Unit>() 
                        ?? __instance.GetComponentInParent<GHPC.Unit>();

@@ -68,6 +68,9 @@ namespace GHPC.Coop.Core
                 ArrowMenu.SteamTransport = SteamTransport;
                 ArrowMenu.IsOpen = true; // Open by default!
 
+                // 5. Tactical 3D Nameplates
+                _nativeHostObject.AddComponent<TacticalNameplates>();
+
                 // Write confirmation file
                 try
                 {
