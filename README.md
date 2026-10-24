@@ -4,8 +4,12 @@
 
 ---
 
-## 🌟 What's New in v0.2.7
+## 🌟 What's New in v0.2.7.1
 
+- **Reliable Mission Autoload & Continuous Room Heartbeat (`VehicleSyncManager.cs` & `SteamP2PTransport.cs`):**
+  - Replicated steffenbk's robust mission sync model: host broadcasts active mission metadata with continuous 1-second heartbeat pulses over reliable Steam P2P (`EP2PSend.k_EP2PSendReliable`).
+  - Automatic fallback scanning across all theaters via `Resources.LoadAll` guarantees clients load instantly even from cold menu states.
+  - Handshake triggers immediate mission synchronization.
 - **Automatic Mission Sync & Client Autoload (`MissionSyncPatches.cs` & `VehicleSyncManager.cs`):**
   - **Zero-touch mission launch:** When the host selects and starts any mission in the game (Instant Action, Campaign, Dynamic Missions), **all connected clients are automatically loaded into the same mission and map**!
   - **Late-join support:** When a client joins a host who is already in battle, the host automatically sends the current mission metadata and terrain index, seamlessly transitioning the guest into the fight.
@@ -37,7 +41,7 @@
 ## 📦 Installation
 
 ### Quick Install (Automated Installer)
-1. Download [`GHPC-Coop-Mod-v0.2.7.zip`](releases/GHPC-Coop-Mod-v0.2.7.zip).
+1. Download [`GHPC-Coop-Mod-v0.2.7.1.zip`](releases/GHPC-Coop-Mod-v0.2.7.1.zip).
 2. Ensure GHPC is closed.
 3. Extract the contents directly into your GHPC game directory (where `GHPC.exe` is located).
 4. Run **`Patcher.exe`** and press **`1`** (or let it auto-install).
