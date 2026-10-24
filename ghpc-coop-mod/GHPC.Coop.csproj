@@ -68,6 +68,10 @@
       <HintPath>$(GHPC_GAME_PATH)\GHPC_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Eflatun.SceneReference">
+      <HintPath>$(GHPC_GAME_PATH)\GHPC_Data\Managed\Eflatun.SceneReference.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
 
     <!-- Game Assembly -->
     <Reference Include="Assembly-CSharp">

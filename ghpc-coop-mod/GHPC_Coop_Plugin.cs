@@ -90,12 +90,14 @@ namespace GHPC.Coop
                 {
                     _network.OnVehicleSyncReceived += _syncManager.HandleRemoteSync;
                     _network.OnFireWeaponReceived += _syncManager.HandleRemoteFire;
+                    _network.OnMissionLoadReceived += _syncManager.HandleRemoteMissionLoad;
                 }
 
                 if (_steamTransport != null)
                 {
                     _steamTransport.OnVehicleSyncReceived += _syncManager.HandleRemoteSync;
                     _steamTransport.OnFireWeaponReceived += _syncManager.HandleRemoteFire;
+                    _steamTransport.OnMissionLoadReceived += _syncManager.HandleRemoteMissionLoad;
                 }
 
                 // Add CoopArrowMenu

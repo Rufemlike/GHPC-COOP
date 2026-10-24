@@ -11,7 +11,8 @@ namespace GHPC.Coop.Network
         VehicleSync = 3,
         FireWeapon = 4,
         AssignUnit = 5,
-        ChatMessage = 6
+        ChatMessage = 6,
+        MissionLoad = 7
     }
 
     public struct VehicleSyncPacket
@@ -78,6 +79,40 @@ namespace GHPC.Coop.Network
                 UnitId = reader.ReadString(),
                 WeaponIndex = reader.ReadInt32(),
                 AimVector = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle())
+            };
+        }
+    }
+
+    public struct MissionLoadPacket
+    {
+        public string TheaterKey;
+        public string MissionSceneName;
+        public string MissionName;
+        public bool IsDaytime;
+        public int Faction;
+        public bool IsFlexMission;
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)PacketType.MissionLoad);
+            writer.Write(TheaterKey ?? "");
+            writer.Write(MissionSceneName ?? "");
+            writer.Write(MissionName ?? "");
+            writer.Write(IsDaytime);
+            writer.Write(Faction);
+            writer.Write(IsFlexMission);
+        }
+
+        public static MissionLoadPacket Deserialize(BinaryReader reader)
+        {
+            return new MissionLoadPacket
+            {
+                TheaterKey = reader.ReadString(),
+                MissionSceneName = reader.ReadString(),
+                MissionName = reader.ReadString(),
+                IsDaytime = reader.ReadBoolean(),
+                Faction = reader.ReadInt32(),
+                IsFlexMission = reader.ReadBoolean()
             };
         }
     }

@@ -153,6 +153,22 @@ namespace Patcher
                 File.Copy(coopSourcePath, coopDestPath, true);
             }
 
+            // 2b. Also update BepInEx/plugins if BepInEx is present in the game folder
+            try
+            {
+                string gameRoot = Directory.GetParent(managedDir)?.Parent?.FullName;
+                if (!string.IsNullOrEmpty(gameRoot))
+                {
+                    string bepPlugins = Path.Combine(gameRoot, "BepInEx", "plugins");
+                    if (Directory.Exists(bepPlugins))
+                    {
+                        string bepCoopPath = Path.Combine(bepPlugins, "GHPC.Coop.dll");
+                        File.Copy(coopSourcePath, bepCoopPath, true);
+                    }
+                }
+            }
+            catch { }
+
             if (!File.Exists(coopDestPath))
             {
                 Console.ForegroundColor = ConsoleColor.Red;

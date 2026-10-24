@@ -23,16 +23,36 @@ namespace GHPC.Coop.Network
         public event Action<VehicleSyncPacket> OnVehicleSyncReceived;
         public event Action<FireWeaponPacket> OnFireWeaponReceived;
         public event Action<string> OnUnitAssigned;
+        public event Action<MissionLoadPacket> OnMissionLoadReceived;
 
         public void StartHost(int port = 7777)
         {
             Stop();
             try
             {
-                _udpClient = new UdpClient(port);
+                // Dual-stack IPv6 socket that accepts both IPv4 and IPv6 connections
+                Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+                try
+                {
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+                }
+                catch
+                {
+                    // Fallback to pure IPv4 if OS does not support dual-stack
+                    socket.Dispose();
+                    socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                }
+
+                IPEndPoint localEp = socket.AddressFamily == AddressFamily.InterNetworkV6 
+                    ? new IPEndPoint(IPAddress.IPv6Any, port) 
+                    : new IPEndPoint(IPAddress.Any, port);
+
+                socket.Bind(localEp);
+                _udpClient = new UdpClient { Client = socket };
+
                 IsHost = true;
                 _isRunning = true;
-                StatusMessage = $"Hosting on port {port}. Waiting for peers...";
+                StatusMessage = $"Hosting on port {port} (IPv4 + IPv6 Dual-Stack). Waiting for peers...";
                 _receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
                 _receiveThread.Start();
             }
@@ -48,12 +68,24 @@ namespace GHPC.Coop.Network
             Stop();
             try
             {
-                _udpClient = new UdpClient();
-                _remoteEndPoint = new IPEndPoint(IPAddress.Parse(hostIp), port);
+                IPAddress targetAddress;
+                if (!IPAddress.TryParse(hostIp.Trim(), out targetAddress))
+                {
+                    // Support DNS resolving (e.g. DDNS domain or hostname)
+                    var addresses = Dns.GetHostAddresses(hostIp.Trim());
+                    if (addresses == null || addresses.Length == 0)
+                        throw new ArgumentException("Could not resolve host IP or domain.");
+                    targetAddress = addresses[0];
+                }
+
+                _remoteEndPoint = new IPEndPoint(targetAddress, port);
+                _udpClient = new UdpClient(_remoteEndPoint.AddressFamily);
                 _udpClient.Connect(_remoteEndPoint);
+
                 IsHost = false;
                 _isRunning = true;
-                StatusMessage = $"Connecting to {hostIp}:{port}...";
+                string ipFamily = targetAddress.AddressFamily == AddressFamily.InterNetworkV6 ? "IPv6" : "IPv4";
+                StatusMessage = $"Connecting to [{targetAddress}]:{port} ({ipFamily})...";
                 _receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
                 _receiveThread.Start();
 
@@ -96,7 +128,10 @@ namespace GHPC.Coop.Network
 
         private void ReceiveLoop()
         {
-            IPEndPoint senderEp = new IPEndPoint(IPAddress.Any, 0);
+            IPEndPoint senderEp = _udpClient != null && _udpClient.Client.AddressFamily == AddressFamily.InterNetworkV6
+                ? new IPEndPoint(IPAddress.IPv6Any, 0)
+                : new IPEndPoint(IPAddress.Any, 0);
+
             while (_isRunning && _udpClient != null)
             {
                 try
@@ -116,6 +151,11 @@ namespace GHPC.Coop.Network
                             writer.Write("Welcome to GHPC Host!");
                             byte[] resp = ms.ToArray();
                             _udpClient.Send(resp, resp.Length, _remoteEndPoint);
+                        }
+
+                        if (IsHost)
+                        {
+                            GHPC.Coop.Core.VehicleSyncManager.Instance?.BroadcastCurrentMission();
                         }
                     }
                     _inbox.Enqueue(data);
@@ -163,6 +203,11 @@ namespace GHPC.Coop.Network
                             case PacketType.AssignUnit:
                                 string assignedUnitId = reader.ReadString();
                                 OnUnitAssigned?.Invoke(assignedUnitId);
+                                break;
+
+                            case PacketType.MissionLoad:
+                                var mission = MissionLoadPacket.Deserialize(reader);
+                                OnMissionLoadReceived?.Invoke(mission);
                                 break;
                         }
                     }

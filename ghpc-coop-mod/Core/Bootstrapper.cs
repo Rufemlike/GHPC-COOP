@@ -54,12 +54,14 @@ namespace GHPC.Coop.Core
                 {
                     Network.OnVehicleSyncReceived += SyncManager.HandleRemoteSync;
                     Network.OnFireWeaponReceived += SyncManager.HandleRemoteFire;
+                    Network.OnMissionLoadReceived += SyncManager.HandleRemoteMissionLoad;
                 }
 
                 if (SteamTransport != null)
                 {
                     SteamTransport.OnVehicleSyncReceived += SyncManager.HandleRemoteSync;
                     SteamTransport.OnFireWeaponReceived += SyncManager.HandleRemoteFire;
+                    SteamTransport.OnMissionLoadReceived += SyncManager.HandleRemoteMissionLoad;
                 }
 
                 // 4. Menu / UI controller

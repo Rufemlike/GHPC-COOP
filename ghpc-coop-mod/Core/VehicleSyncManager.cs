@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GHPC.Coop.Network;
 using GHPC.Player;
 using GHPC.Weapons;
@@ -256,6 +257,160 @@ namespace GHPC.Coop.Core
                         }
                     }
                 }
+            }
+        }
+
+        public void BroadcastCurrentMission()
+        {
+            try
+            {
+                var state = GHPC.State.PersistentDataManager.GetStateData();
+                if (state == null || state.MetaData == null) return;
+
+                var packet = new MissionLoadPacket
+                {
+                    TheaterKey = state.TheaterKey ?? "",
+                    MissionSceneName = state.MetaData.MissionSceneReference.Name ?? "",
+                    MissionName = state.MetaData.MissionName ?? "",
+                    IsDaytime = SceneController.IsDaytime,
+                    Faction = (int)SceneController.TargetSpawningFaction,
+                    IsFlexMission = state.MetaData.IsFlexMission
+                };
+
+                using (var ms = new MemoryStream())
+                using (var writer = new BinaryWriter(ms))
+                {
+                    packet.Serialize(writer);
+                    SendPacket(ms.ToArray());
+                }
+
+                Debug.Log($"[GHPC.Coop] Broadcasted MissionLoadPacket: {packet.TheaterKey} / {packet.MissionName} ({packet.MissionSceneName})");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[GHPC.Coop] BroadcastCurrentMission failed: {ex.Message}");
+            }
+        }
+
+        public void BroadcastMissionFromParam(string missionParam)
+        {
+            try
+            {
+                // First try standard StateData
+                var state = GHPC.State.PersistentDataManager.GetStateData();
+                if (state != null && state.MetaData != null && !string.IsNullOrEmpty(state.MetaData.MissionSceneReference.Name))
+                {
+                    BroadcastCurrentMission();
+                    return;
+                }
+
+                // Fallback: parse parameter "terrainIndex,sceneName"
+                if (string.IsNullOrEmpty(missionParam)) return;
+                var parts = missionParam.Split(',');
+                if (parts.Length < 2) return;
+
+                string sceneName = parts[1].Trim();
+                var theaters = Resources.FindObjectsOfTypeAll<GHPC.Mission.Data.MissionTheaterScriptable>();
+                if (theaters == null) return;
+
+                foreach (var t in theaters)
+                {
+                    if (t == null || t.Missions == null) continue;
+                    var meta = t.Missions.FirstOrDefault(m => m != null && !m.IsCategory && m.MissionSceneReference.Name == sceneName);
+                    if (meta != null)
+                    {
+                        var packet = new MissionLoadPacket
+                        {
+                            TheaterKey = t.Key,
+                            MissionSceneName = sceneName,
+                            MissionName = meta.MissionName,
+                            IsDaytime = SceneController.IsDaytime,
+                            Faction = (int)SceneController.TargetSpawningFaction,
+                            IsFlexMission = meta.IsFlexMission
+                        };
+
+                        using (var ms = new MemoryStream())
+                        using (var writer = new BinaryWriter(ms))
+                        {
+                            packet.Serialize(writer);
+                            SendPacket(ms.ToArray());
+                        }
+
+                        Debug.Log($"[GHPC.Coop] Broadcasted MissionLoadPacket from param: {t.Key} / {meta.MissionName} ({sceneName})");
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[GHPC.Coop] BroadcastMissionFromParam failed: {ex.Message}");
+            }
+        }
+
+        public void HandleRemoteMissionLoad(MissionLoadPacket packet)
+        {
+            if (string.IsNullOrEmpty(packet.MissionSceneName)) return;
+
+            var curScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (curScene.name == packet.MissionSceneName)
+            {
+                Debug.Log($"[GHPC.Coop] Already in mission scene: {curScene.name}");
+                return;
+            }
+
+            Debug.Log($"[GHPC.Coop] Autoloading host mission: {packet.TheaterKey} / {packet.MissionName} ({packet.MissionSceneName})");
+
+            try
+            {
+                var theaters = Resources.FindObjectsOfTypeAll<GHPC.Mission.Data.MissionTheaterScriptable>();
+                var theater = theaters?.FirstOrDefault(t => t != null && t.Key == packet.TheaterKey);
+                if (theater == null || theater.Missions == null)
+                {
+                    Debug.LogError($"[GHPC.Coop] Theater not found: {packet.TheaterKey}");
+                    return;
+                }
+
+                var meta = theater.Missions.FirstOrDefault(m => m != null && !m.IsCategory && m.MissionSceneReference.Name == packet.MissionSceneName);
+                if (meta == null)
+                {
+                    Debug.LogError($"[GHPC.Coop] Mission not found in theater: {packet.MissionSceneName}");
+                    return;
+                }
+
+                int terrainIndex = UnityEngine.SceneManagement.SceneUtility.GetBuildIndexByScenePath(theater.TerrainSceneReference.Path);
+                if (terrainIndex < 0)
+                {
+                    Debug.LogError($"[GHPC.Coop] Terrain index not found: {theater.TerrainSceneReference.Path}");
+                    return;
+                }
+
+                GHPC.State.PersistentDataManager.PersistMissionInfo(
+                    new GHPC.State.Data.MissionInfoData(meta.MissionName, "Co-op Host Mission"), 
+                    meta, 
+                    theater.Key);
+
+                GHPC.Mission.DynamicMissionComposer.CampaignMode = false;
+                GHPC.Mission.DynamicMissionComposer.DynamicMission = packet.IsFlexMission;
+                GHPC.Mission.DynamicMissionComposer.NeedsFlexMissionSetup = packet.IsFlexMission;
+                GHPC.Mission.DynamicMissionComposer.CurrentMissionNameKey = packet.MissionSceneName;
+
+                SceneController.IsDaytime = packet.IsDaytime;
+                SceneController.AllowTimeChoice = false;
+                SceneController.TargetSpawningFaction = (GHPC.Faction)packet.Faction;
+
+                var sc = UnityEngine.Object.FindObjectOfType<SceneController>();
+                if (sc != null)
+                {
+                    sc.LoadSceneByMission(terrainIndex + "," + packet.MissionSceneName);
+                }
+                else
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(terrainIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GHPC.Coop] Error autoloading host mission: {ex}");
             }
         }
     }

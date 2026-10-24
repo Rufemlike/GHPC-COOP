@@ -18,6 +18,7 @@ namespace GHPC.Coop.Network
 
         public event Action<VehicleSyncPacket> OnVehicleSyncReceived;
         public event Action<FireWeaponPacket> OnFireWeaponReceived;
+        public event Action<MissionLoadPacket> OnMissionLoadReceived;
 
         private Callback<LobbyCreated_t> _lobbyCreatedCallback;
         private Callback<LobbyEnter_t> _lobbyEnterCallback;
@@ -229,6 +230,10 @@ namespace GHPC.Coop.Network
                         {
                             RemotePeerSteamId = remoteId;
                             IsConnected = true;
+                            if (IsHost)
+                            {
+                                GHPC.Coop.Core.VehicleSyncManager.Instance?.BroadcastCurrentMission();
+                            }
                         }
 
                         ProcessPacket(buffer);
@@ -260,6 +265,11 @@ namespace GHPC.Coop.Network
                         case PacketType.FireWeapon:
                             var fire = FireWeaponPacket.Deserialize(reader);
                             OnFireWeaponReceived?.Invoke(fire);
+                            break;
+
+                        case PacketType.MissionLoad:
+                            var mission = MissionLoadPacket.Deserialize(reader);
+                            OnMissionLoadReceived?.Invoke(mission);
                             break;
                     }
                 }

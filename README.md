@@ -6,6 +6,10 @@
 
 ## 🌟 What's New in v0.2.7
 
+- **Automatic Mission Sync & Client Autoload (`MissionSyncPatches.cs` & `VehicleSyncManager.cs`):**
+  - **Zero-touch mission launch:** When the host selects and starts any mission in the game (Instant Action, Campaign, Dynamic Missions), **all connected clients are automatically loaded into the same mission and map**!
+  - **Late-join support:** When a client joins a host who is already in battle, the host automatically sends the current mission metadata and terrain index, seamlessly transitioning the guest into the fight.
+  - Synchronizes theater key, mission scene, daytime/nighttime, and spawning faction.
 - **Player-Only Tactical 3D Nameplates (`TacticalNameplates.cs`):**
   - AI bots, wingmen, and platoon commanders are now cleanly filtered out — **markers appear strictly above tanks controlled by real connected human players**.
   - Crisp in-world markers drawn directly above teammates' tanks: `PlayerName [VehicleModel] (Distance)`.
