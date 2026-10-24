@@ -4,8 +4,10 @@
 
 ---
 
-## 🌟 What's New in v0.2.7.2
+## 🌟 What's New in v0.2.7.3
 
+- **Enhanced Steam Invite & Friends Overlay (`SteamP2PTransport.cs`):**
+  - Added multi-stage fallback for Steam invites: activates lobby invite dialog with automatic fallback to standard Steam Friends overlay (`SteamFriends.ActivateGameOverlay("Friends")`) if the game overlay dialog is restricted by Steam/Spacewar.
 - **Fixed Critical Mission Intercept Patch (`MissionSyncPatches.cs`):**
   - Resolved `Parameter mission not found in SceneController.LoadSceneByMission(string data)` which previously prevented the Harmony prefix hook from intercepting mission starts.
   - Scene transition parameter hook now activates reliably on any mission launch.
@@ -21,7 +23,7 @@
 ## 📦 Installation
 
 ### Quick Install (Automated Installer)
-1. Download [`GHPC-Coop-Mod-v0.2.7.2.zip`](releases/GHPC-Coop-Mod-v0.2.7.2.zip).
+1. Download [`GHPC-Coop-Mod-v0.2.7.3.zip`](releases/GHPC-Coop-Mod-v0.2.7.3.zip).
 2. Ensure GHPC is closed.
 3. Extract the contents directly into your GHPC game directory (where `GHPC.exe` is located).
 4. Run **`Patcher.exe`** and press **`1`** (or let it auto-install).
