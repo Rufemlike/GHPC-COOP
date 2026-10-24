@@ -4,44 +4,24 @@
 
 ---
 
-## 🌟 What's New in v0.2.7.1
+## 🌟 What's New in v0.2.7.2
 
+- **Fixed Critical Mission Intercept Patch (`MissionSyncPatches.cs`):**
+  - Resolved `Parameter mission not found in SceneController.LoadSceneByMission(string data)` which previously prevented the Harmony prefix hook from intercepting mission starts.
+  - Scene transition parameter hook now activates reliably on any mission launch.
+- **Improved LAN/IP Host Controls (`CoopArrowMenu.cs`):**
+  - Direct state feedback in the LAN tab: displays clear `«Остановить хост»` button and listening socket status.
 - **Reliable Mission Autoload & Continuous Room Heartbeat (`VehicleSyncManager.cs` & `SteamP2PTransport.cs`):**
   - Replicated steffenbk's robust mission sync model: host broadcasts active mission metadata with continuous 1-second heartbeat pulses over reliable Steam P2P (`EP2PSend.k_EP2PSendReliable`).
   - Automatic fallback scanning across all theaters via `Resources.LoadAll` guarantees clients load instantly even from cold menu states.
   - Handshake triggers immediate mission synchronization.
-- **Automatic Mission Sync & Client Autoload (`MissionSyncPatches.cs` & `VehicleSyncManager.cs`):**
-  - **Zero-touch mission launch:** When the host selects and starts any mission in the game (Instant Action, Campaign, Dynamic Missions), **all connected clients are automatically loaded into the same mission and map**!
-  - **Late-join support:** When a client joins a host who is already in battle, the host automatically sends the current mission metadata and terrain index, seamlessly transitioning the guest into the fight.
-  - Synchronizes theater key, mission scene, daytime/nighttime, and spawning faction.
-- **Player-Only Tactical 3D Nameplates (`TacticalNameplates.cs`):**
-  - AI bots, wingmen, and platoon commanders are now cleanly filtered out — **markers appear strictly above tanks controlled by real connected human players**.
-  - Crisp in-world markers drawn directly above teammates' tanks: `PlayerName [VehicleModel] (Distance)`.
-  - **Smart Occlusion (LoS Raycasting):** Markers automatically hide behind ridges, terrain, buildings, and tree cover.
-  - **Dynamic Scale & Alpha Falloff:** Clean readability from 1m up to 2500m without cluttering your gunner optics.
-- **Dedicated In-Game Settings Tab (`CoopArrowMenu.cs`):**
-  - Dropdown menu now features a dedicated **`[Настройки]` (Settings)** tab.
-  - Toggle 3D Player Nameplates on/off on the fly (`[Ники игроков в 3D: ВКЛ/ВЫКЛ]`).
-  - Toggle marker above your own vehicle (`[Метка над своим танком: ВКЛ/ВЫКЛ]`).
-  - Quick hotkey guide and control references.
-- **Dual-Stack IPv6 + IPv4 Networking (`CoopNetwork.cs`):**
-  - Host runs a dual-stack socket (`IPAddress.IPv6Any`) accepting both **IPv6** and **IPv4** peers simultaneously on port `7777`.
-  - Client supports direct connection to IPv6 addresses (e.g. `2a00:...`), IPv4, or hostnames/DDNS domains with automatic DNS resolution.
-  - Allows direct peer connections across ISPs with native IPv6 without needing NAT traversal, Hamachi, or Radmin VPN.
-- **Fully Portable 1-Click Patcher & Uninstaller (`Patcher.exe`):**
-  - Single-file self-contained executable (requires zero installed .NET SDKs or runtimes on target PCs).
-  - Steam registry auto-discovery, common library drive scanning, and interactive drag-and-drop path fallback.
-  - Full UTF-8 terminal output and guaranteed prompt pause before exit.
-- **Autoloader Stabilizer (`AutoloaderStabilizer.cs`):**
-  - Resolves Soviet carousel autoloader lockups on T-72M1, T-80B, and BMP-1 during multiplayer.
-  - Ensures continuous cycling and loading without desynchronizing the gun breech state.
 
 ---
 
 ## 📦 Installation
 
 ### Quick Install (Automated Installer)
-1. Download [`GHPC-Coop-Mod-v0.2.7.1.zip`](releases/GHPC-Coop-Mod-v0.2.7.1.zip).
+1. Download [`GHPC-Coop-Mod-v0.2.7.2.zip`](releases/GHPC-Coop-Mod-v0.2.7.2.zip).
 2. Ensure GHPC is closed.
 3. Extract the contents directly into your GHPC game directory (where `GHPC.exe` is located).
 4. Run **`Patcher.exe`** and press **`1`** (or let it auto-install).
